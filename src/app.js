@@ -13,4 +13,14 @@ app.use(express.json({limit:DATA_LIMIT}))
 app.use(express.urlencoded({limit:DATA_LIMIT}))
 app.use(express.static("public"))
 app.use(cookieParser())
+
+//routes import
+
+import userRouter from "./routes/user.routes.js"
+
+//routes declaration 
+
+app.use("/api/v1/users", userRouter)
+
 export { app }
+
