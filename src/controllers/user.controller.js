@@ -23,7 +23,6 @@ const generateAccessAndRefereshToken = async(userId)=>{
 
 const registerUser = asyncHandler( async (req,res)=>{
    const {fullName , email , username, password} =req.body
-   console.log(email);
 
    if(
             [fullName ,email ,username,password].some((field)=>field?.trim()==="")
@@ -70,6 +69,8 @@ const registerUser = asyncHandler( async (req,res)=>{
    return res.status(201).json(
     new Apiresponse(200,createdUser,"User register Successfully")
    )
+
+   
 })
 
 const loginUser = asyncHandler(async(req ,res)=>{
