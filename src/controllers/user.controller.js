@@ -174,4 +174,84 @@ return res
 })
 
 
-export {registerUser , logoutUser , loginUser, refreshAccessToken}
+const changeCurrentPassword = asyncHandler(async(req,red)=>{
+   const {oldPassword , newPassword} = req.body
+   const user = await User.findById(req.user?._id)
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+
+  if(!isPasswordCorrect){
+           throw new ApiError(400 , "Invalid old Password")
+  }
+
+
+user.password = newPassword
+await user.save({ValidateBeforeSave:false})
+
+return res.status(200)
+.json( new Apiresponse(200,{},"Password save successfully"))
+})
+
+const getCurrentUser = asyncHandler(async(req, res)=>{
+    return res.status(200)
+    .json(new Apiresponse(200,req.user,"current user fetched successfully"))
+}) 
+
+
+const updateAccountDetails  = asyncHandler(async(req,res)=>{
+   const {fullName,email} = req.body
+      if (!fullName || !email){
+      throw new ApiError(400,"all fields are required")
+      }
+      
+     const user =  User.findByIdAndDelete(req.user?._id,{
+      $set:{
+         fullName,
+         email 
+      }
+     },{new : true}).select("-password")
+
+     return res.status(200)
+     .json(new Apiresponse(200,req,user,"Account details updated successfully"))
+   }) 
+
+const updateUserAvatar = asyncHandler(async(req,res)=>{
+ const avatarLocalPath=   req.file?.path
+
+ if(!avatarLocalPath){
+   throw new ApiError(400,"Avatr file missing ")
+
+ }
+
+ const avatar = await uploadCloudinary(avatarLocalPath)
+ if (!avatar.url) {throw new ApiError(400,"Error while uploading")}
+ const user =  User.findByIdAndDelete(req.user?._id,{
+   $set:{
+   avatr: avatar.url
+   }
+  },{new : true}).select("-password")  
+
+  return res.status(200)
+     .json(new Apiresponse(200,req,user,"Avatar updated successfully"))
+})
+
+const updateCoverImage = asyncHandler(async(req,res)=>{
+ const CoverImageLocalPath=   req.file?.path
+
+ if(!CoverImageLocalPath){
+   throw new ApiError(400,"cover image file missing ")
+
+ }
+
+  const coverImage = await uploadCloudinary(avatarLocalPath)
+    if (!coverImage.url) {throw new ApiError(400,"Error while uploading")}
+  const user =  User.findByIdAndDelete(req.user?._id,{
+     $set:{
+     coverImage :coverImage.url   }
+      },{new : true}).select("-password")  
+
+      return res.status(200)
+      .json(new Apiresponse(200,req,user,"details updated successfully"))
+   })
+
+
+export {registerUser , logoutUser , loginUser, refreshAccessToken , changeCurrentPassword , getCurrentUser , updateUserAvatar , updateCoverImage}
